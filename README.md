@@ -6,8 +6,7 @@ O objetivo deste sistema é gerenciar as reservas de salas de estudo do campus u
 
 ## Autores
 * **Caroline Maximo** - 163.650
-* **Gustavo Moreira Pacheco** - 176.508
-
+* **João Victor dos Santos Silva** - 163.836
 ---
 
 ## Requisitos Funcionais Atendidos
@@ -28,6 +27,20 @@ Para deixar o código organizado, escalável e com baixo acoplamento, aplicamos 
 * Observer: Sistema de notificações. Quando uma reserva sofre qualquer alteração (criada, modificada ou cancelada), os observadores (NotificadorUsuario e ServicoRelatorio) são avisados automaticamente para emitir alertas e registrar logs.
 * Singleton: O RepositorioReservas foi criado com este padrão para garantir uma única base de dados em memória para toda a aplicação. Utilizamos ReadWriteLock para garantir segurança (thread-safety) em acessos simultâneos.
 * Decorator: Permite "decorar" uma reserva com serviços extras dinâmicos, como adicionar taxas de Limpeza ou Equipamento Multimídia na hora da criação.
+* **Proxy (extensão):** Um `ServicoDeReservaProxy` envolve o serviço real e aplica regras de controle de acesso antes de qualquer operação. Estudantes são impedidos de reservar laboratórios e de fazer reservas com duração superior a 4 horas. Todas as tentativas são registradas em log. O restante do sistema programa para a interface `IServicoDeReserva`, sem saber se está interagindo com o proxy ou com o serviço real.
+
+## Funcionalidade Adicional — Extensão
+
+**Controle de acesso por perfil de usuário via Padrão Proxy**
+
+A extensão implementa um Proxy de Proteção sobre o `ServicoDeReserva`, aplicando regras de negócio específicas por perfil antes de qualquer reserva ser criada:
+
+| Regra | Estudante | Professor |
+|---|---|---|
+| Reservar sala de laboratório | Negado | Permitido |
+| Reservar por mais de 4 horas | Negado | Permitido |
+
+Consulte `docs/funcionalidade_adicional.md` para a descrição completa e justificativa do padrão.
 
 ## Estrutura do Projeto
 
@@ -39,7 +52,8 @@ src/br/edu/reserva/
 ├── factory/     # Criação das salas
 ├── model/       # Entidades de domínio (Sala, Reserva, Usuários)
 ├── observer/    # Sistema de eventos e relatórios
-├── service/     # Orquestrador central (ServicoDeReserva)
+├── proxy/       # Controle de acesso por perfil (extensão)
+├── service/     # Interface IServicoDeReserva e ServicoDeReserva
 ├── singleton/   # Repositório em memória
 ├── strategy/    # Políticas de colisão e prioridade
 └── Main.java    # Interface de linha de comando

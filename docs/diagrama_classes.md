@@ -2,7 +2,6 @@
 
 ```mermaid
 classDiagram
-    %% MODEL
     class Sala {
         <<abstract>>
         -String id
@@ -72,7 +71,6 @@ classDiagram
     Reserva --> Usuario
     Reserva --> StatusReserva
 
-    %% FACTORY METHOD
     class SalaFactory {
         <<abstract>>
         +criarSala(String,String,int)* Sala
@@ -95,7 +93,6 @@ classDiagram
     SalaTrabalhoGrupoFactory    ..> SalaTrabalhoGrupo    : cria
     SalaLaboratorioFactory      ..> SalaLaboratorio      : cria
 
-    %% STRATEGY
     class PoliticaDeReserva {
         <<interface>>
         +podeReservar(Usuario,Sala,LocalDateTime,LocalDateTime,List) boolean
@@ -113,7 +110,6 @@ classDiagram
     PoliticaDeReserva <|.. PoliticaPrimeiroChegarPrimeiroPago
     PoliticaDeReserva <|.. PoliticaPrioridadeDocente
 
-    %% OBSERVER
     class Observable {
         <<interface>>
         +adicionarObservador(Observador)
@@ -146,7 +142,6 @@ classDiagram
     Observador  <|.. ServicoRelatorio
     GerenciadorEventos o-- Observador
 
-    %% SINGLETON
     class RepositorioReservas {
         -List~Sala~ salas
         -List~Reserva~ reservas
@@ -160,7 +155,6 @@ classDiagram
         +listarTodas() List
     }
 
-    %% DECORATOR
     class ServicoAdicional {
         <<interface>>
         +getDescricao() String
@@ -191,15 +185,36 @@ classDiagram
     ReservaDecorator  <|-- ReservaComLimpeza
     ReservaDecorator  o--  ServicoAdicional
 
-    %% SERVICE
+    class IServicoDeReserva {
+        <<interface>>
+        +criarReserva(...) Optional~Reserva~
+        +modificarReserva(...) boolean
+        +cancelarReserva(String) boolean
+        +setPolitica(PoliticaDeReserva)
+        +getPolitica() PoliticaDeReserva
+    }
     class ServicoDeReserva {
         -PoliticaDeReserva politica
         +criarReserva(...) Optional~Reserva~
         +modificarReserva(...) boolean
         +cancelarReserva(String) boolean
         +setPolitica(PoliticaDeReserva)
+        +getPolitica() PoliticaDeReserva
     }
+    IServicoDeReserva <|.. ServicoDeReserva
     ServicoDeReserva --> PoliticaDeReserva
     ServicoDeReserva --> RepositorioReservas
     ServicoDeReserva --> GerenciadorEventos
+
+    class ServicoDeReservaProxy {
+        -ServicoDeReserva servicoReal
+        +criarReserva(...) Optional~Reserva~
+        +modificarReserva(...) boolean
+        +cancelarReserva(String) boolean
+        +setPolitica(PoliticaDeReserva)
+        +getPolitica() PoliticaDeReserva
+    }
+    IServicoDeReserva <|.. ServicoDeReservaProxy
+    ServicoDeReservaProxy --> ServicoDeReserva : delega
+    ServicoDeReservaProxy --> RepositorioReservas : verifica sala
 ```
