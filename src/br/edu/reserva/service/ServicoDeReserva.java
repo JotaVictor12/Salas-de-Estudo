@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ServicoDeReserva {
+public class ServicoDeReserva implements IServicoDeReserva {
 
     private PoliticaDeReserva politica;                                   
     private final RepositorioReservas repositorio = RepositorioReservas.getInstancia(); 

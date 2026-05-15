@@ -16,6 +16,8 @@ import br.edu.reserva.model.Usuario;
 import br.edu.reserva.observer.GerenciadorEventos;
 import br.edu.reserva.observer.NotificadorUsuario;
 import br.edu.reserva.observer.ServicoRelatorio;
+import br.edu.reserva.proxy.ServicoDeReservaProxy;
+import br.edu.reserva.service.IServicoDeReserva;
 import br.edu.reserva.service.ServicoDeReserva;
 import br.edu.reserva.singleton.RepositorioReservas;
 import br.edu.reserva.strategy.PoliticaPrimeiroChegarPrimeiroPago;
@@ -51,7 +53,8 @@ public class Main {
         GerenciadorEventos.getInstancia().adicionarObservador(new NotificadorUsuario());
         GerenciadorEventos.getInstancia().adicionarObservador(relatorio);
 
-        ServicoDeReserva servico = new ServicoDeReserva(new PoliticaPrimeiroChegarPrimeiroPago());
+        IServicoDeReserva servico = new ServicoDeReservaProxy(
+                new ServicoDeReserva(new PoliticaPrimeiroChegarPrimeiroPago()));
 
         Scanner sc = new Scanner(System.in);
         String opcao = "";
@@ -163,6 +166,16 @@ public class Main {
                 relatorio.gerarRelatorioDiario(LocalDate.now());
 
                 System.out.println("Ultima reserva alterada (pull): " + relatorio.getUltimaReservaAlterada());
+
+                System.out.println("\n-- Proxy (Controle de Acesso) --");
+                System.out.println("Ana (estudante) tenta reservar Lab. Informatica (deve ser NEGADO):");
+                servico.criarReserva(e1, "S05", h9, h10);
+
+                System.out.println("\nAna tenta reservar Sala Verde por 6 horas (deve ser NEGADO):");
+                servico.criarReserva(e1, "S03", h9, LocalDate.now().atTime(15, 0));
+
+                System.out.println("\nProfessor reserva Lab. Informatica (deve ser PERMITIDO):");
+                servico.criarReserva(prof, "S05", h9, h10);
             }
         }
 
